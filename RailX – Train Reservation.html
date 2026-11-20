@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RailX – Train Reservation</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef2f5;--card:#fff;--tx:#0f2230;--mut:#586a7a;--bd:#d9e1e8;--ink:#0f2230;--sig:#ffc233;--pri:#1d5fa8;--ok:#0b8a5a;--warn:#a86a00;--bad:#c0392b;--seat:#e8f0f7;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b141c;--card:#14212d;--tx:#e8eef4;--mut:#93a5b6;--bd:#25384a;--ink:#06101a;--pri:#5aa2e6;--seat:#1c2f40;--ok:#35c48a;--warn:#e8a93a;--bad:#ff7a6b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b141c;--card:#14212d;--tx:#e8eef4;--mut:#93a5b6;--bd:#25384a;--ink:#06101a;--pri:#5aa2e6;--seat:#1c2f40;--ok:#35c48a;--warn:#e8a93a;--bad:#ff7a6b;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 Barlow,system-ui,sans-serif}
+h1,h2,h3{font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-weight:700;margin:0 0 .4em;letter-spacing:.2px}
+h1{font-size:clamp(2.4rem,7vw,4rem);line-height:1}h2{font-size:1.9rem}h3{font-size:1.3rem}
+nav{background:var(--ink);color:#fff;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;padding:12px 20px;position:sticky;top:0;z-index:5}
+nav b{font:700 1.6rem 'Barlow Condensed',sans-serif;margin-right:auto;cursor:pointer}nav b i{color:var(--sig);font-style:normal}
+nav a{color:#cfdbe6;cursor:pointer;font-weight:500;padding:4px 0}nav a:hover,nav a:focus-visible{color:var(--sig)}
+main{max-width:1000px;margin:0 auto;padding:24px 16px 60px}
+.hero{background:var(--ink);color:#fff;padding:48px 16px 80px}.hero>div{max-width:1000px;margin:0 auto}.hero p{color:#b9c8d6;max-width:46ch;font-size:1.1rem}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:18px}
+.srch{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;align-items:end;margin-top:22px;color:var(--tx)}
+label{display:flex;flex-direction:column;font-size:.9rem;font-weight:600;gap:4px}
+input,select{font:inherit;padding:10px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--sig);outline-offset:1px}
+.btn{font:600 1rem Barlow,sans-serif;background:var(--sig);color:#1a1300;border:0;border-radius:6px;padding:11px 18px;cursor:pointer;transition:transform .15s}
+.btn:hover{transform:translateY(-1px)}.btn.sec{background:transparent;color:var(--pri);border:1px solid var(--pri)}.btn.bad{background:transparent;color:var(--bad);border:1px solid var(--bad)}.btn.sm{padding:6px 12px;font-size:.9rem}
+.pull{margin-top:-48px;position:relative}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:20px}
+.tr{margin-bottom:14px}.tm{font:700 1.8rem 'Barlow Condensed',sans-serif}.mut{color:var(--mut)}
+.cls{border:1px solid var(--bd);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;min-width:150px;flex:1}
+.bdg{display:inline-block;padding:2px 10px;border-radius:99px;font-weight:600;font-size:.85rem;border:1px solid currentColor}
+.CONFIRMED{color:var(--ok)}.RAC,.WAITING{color:var(--warn)}.CANCELLED{color:var(--bad)}
+.seats{display:grid;grid-template-columns:repeat(4,56px);gap:8px;justify-content:center;margin:14px 0}
+.seats button{height:44px;border-radius:6px 6px 14px 14px;border:1px solid var(--bd);background:var(--seat);color:var(--tx);font-weight:600;cursor:pointer}
+.seats button.t{background:var(--bd);color:var(--mut);cursor:not-allowed;text-decoration:line-through}.seats button.s{background:var(--pri);color:#fff;border-color:var(--pri)}
+.seats button:nth-child(4n+2){margin-right:14px}
+.tix{display:grid;grid-template-columns:1fr auto;border-radius:12px;overflow:hidden;background:var(--card);border:1px solid var(--bd)}
+.tix .m{padding:20px}.tix .st{background:var(--sig);color:#1a1300;padding:20px;border-left:2px dashed var(--ink);text-align:center;display:flex;flex-direction:column;justify-content:center}
+.pnr{font:700 2rem 'Barlow Condensed',sans-serif;letter-spacing:2px}
+@media(max-width:560px){.tix{grid-template-columns:1fr}.tix .st{border-left:0;border-top:2px dashed var(--ink)}}
+table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid var(--bd);text-align:left;font-size:.92rem}.sc{overflow-x:auto}
+.stat{font:700 2.4rem 'Barlow Condensed',sans-serif}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:8px;max-width:90vw;opacity:0;pointer-events:none;transition:opacity .25s;z-index:9;border-left:4px solid var(--sig)}
+#toast.on{opacity:1}#toast.err{border-color:var(--bad)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<nav id="nav"></nav><div id="app"></div><div id="toast" role="status"></div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const mem={};
+const DB={get(k,d){try{const v=localStorage.getItem('rx_'+k);if(v!==null)return JSON.parse(v)}catch(e){}return k in mem?JSON.parse(mem[k]):d},
+ set(k,v){mem[k]=JSON.stringify(v);try{localStorage.setItem('rx_'+k,mem[k])}catch(e){}}};
+const STN={SBC:'Bengaluru',MYS:'Mysuru',MAS:'Chennai',UBL:'Hubballi',PUNE:'Pune',CSMT:'Mumbai',HYB:'Hyderabad'};
+const TR=[{id:'12007',name:'Shatabdi Express',s:[['SBC','06:00',0],['MYS','08:30',139]]},
+ {id:'12608',name:'Lalbagh Express',s:[['SBC','06:30',0],['MAS','12:10',347]]},
+ {id:'12627',name:'Karnataka Express',s:[['SBC','19:20',0],['UBL','05:30',410],['PUNE','16:00',840],['CSMT','21:00',980]]},
+ {id:'12785',name:'Hyderabad Express',s:[['SBC','21:00',0],['HYB','07:30',570]]}];
+const CL={SL:{n:'Sleeper',r:.6},'3A':{n:'AC 3-Tier',r:1.6},'2A':{n:'AC 2-Tier',r:2.4}},CAP=24,RACMAX=4;
+const iso=o=>{const d=new Date();d.setDate(d.getDate()+o);return d.toISOString().slice(0,10)};
+const wkend=d=>[0,6].includes(new Date(d+'T00:00').getDay());
+if(!DB.get('users',null))DB.set('users',[{id:1,name:'Admin',email:'admin@railx.com',pw:btoa('admin123'),role:'ADMIN'}]);
+
+/* ===== Design patterns ===== */
+// SINGLETON – one booking manager issues unique PNRs
+const BookingManager=(()=>{let inst;function M(){this.pnr=()=>{let p;do{p=String(Math.floor(1e9+Math.random()*9e9))}while(DB.get('bk',[]).some(b=>b.pnr===p));return p}}return{getInstance:()=>inst||(inst=new M())}})();
+// STRATEGY – interchangeable fare algorithms
+const base=(km,c)=>km*CL[c].r+50;
+const FS={base:{n:'Base',calc:(km,c)=>Math.round(base(km,c))},tatkal:{n:'Tatkal',calc:(km,c)=>Math.round(base(km,c)*1.3)},
+ senior:{n:'Senior',calc:(km,c)=>Math.round(base(km,c)*.6)},dynamic:{n:'Weekend',calc:(km,c)=>Math.round(base(km,c)*1.1)}};
+// FACTORY – creates ticket by type
+const TicketFactory={create:t=>t==='TATKAL'?{type:'Tatkal',strat:FS.tatkal}:{type:'General',strat:FS.base}};
+const stratFor=(tk,age,d)=>tk.type==='Tatkal'?tk.strat:age>=60?FS.senior:wkend(d)?FS.dynamic:tk.strat;
+// OBSERVER – subscribers react to status changes
+const Bus={subs:[],on(f){this.subs.push(f)},emit(e){this.subs.forEach(f=>f(e))}};
+Bus.on(e=>{const n=DB.get('nt',[]);n.unshift({uid:e.uid,msg:e.msg,at:Date.now()});DB.set('nt',n.slice(0,100))});
+Bus.on(e=>{if(me()&&me().id===e.uid)toast(e.msg)});
+// STATE – behaviour depends on booking status
+const seatMap=()=>DB.get('seats',{});
+const ST={
+ CONFIRMED:{cancel(b){const a=seatMap(),m=a[b.key]||{};b.pax.forEach(p=>{delete m[p.seat];p.seat=null});a[b.key]=m;DB.set('seats',a);b.status='CANCELLED';promoteQueue(b.key,DB.get('bk',[]).map(x=>x.pnr===b.pnr?b:x))},promote(){}},
+ RAC:{cancel(b){b.status='CANCELLED'},promote(b,s,m){b.status='CONFIRMED';b.pax.forEach((p,i)=>{p.seat=s[i];m[s[i]]=b.pnr})}},
+ WAITING:{cancel(b){b.status='CANCELLED'},promote(b,s,m){b.status='CONFIRMED';b.pax.forEach((p,i)=>{p.seat=s[i];m[s[i]]=b.pnr})}},
+ CANCELLED:{cancel(){throw new Error('This booking is already cancelled.')},promote(){}}};
+function promoteQueue(k,bks){const a=seatMap(),m=a[k]||{},free=[...Array(CAP)].map((_,i)=>i+1).filter(n=>!m[n]);
+ const q=bks.filter(b=>b.key===k&&(b.status==='RAC'||b.status==='WAITING')).sort((x,y)=>(x.status==='RAC'?0:1)-(y.status==='RAC'?0:1)||x.at-y.at);
+ for(const b of q)if(free.length>=b.pax.length){ST[b.status].promote(b,free.splice(0,b.pax.length),m);Bus.emit({uid:b.uid,msg:`Good news: booking ${b.pnr} is now CONFIRMED.`})}
+ a[k]=m;DB.set('seats',a);DB.set('bk',bks)}
+// FACADE – one simple entry point for the whole reservation process
+const RF={
+ search(f,t){return TR.filter(x=>{const i=x.s.findIndex(s=>s[0]===f),j=x.s.findIndex(s=>s[0]===t);return i>=0&&j>i}).map(x=>{const a=x.s.find(s=>s[0]===f),b=x.s.find(s=>s[0]===t);return{...x,dep:a[1],arr:b[1],km:b[2]-a[2]}})},
+ taken(tid,d,c){return(seatMap()[tid+'|'+d+'|'+c])||{}},
+ left(tid,d,c){return CAP-Object.keys(this.taken(tid,d,c)).length},
+ book(u,r){
+  if(!u)throw new Error('Please log in to book.');
+  if(r.pax.some(p=>!p.name.trim()||!(p.age>=1&&p.age<=120)||!p.g))throw new Error('Enter a name, an age (1–120) and a gender for every passenger.');
+  const a=seatMap(),k=r.tid+'|'+r.date+'|'+r.cls,m=a[k]||{},free=CAP-Object.keys(m).length,bks=DB.get('bk',[]),n=r.pax.length;
+  const pnr=BookingManager.getInstance().pnr();let status,seats=[];
+  if(free>=n){ // seat check is re-read from storage and committed in one synchronous step: no double booking
+   if(r.sel.length!==n)throw new Error(`Select ${n} seat${n>1?'s':''} on the seat map.`);
+   const bad=r.sel.find(s=>m[s]);if(bad)throw new Error(`Seat ${bad} was just booked by someone else. Pick another seat.`);
+   seats=[...r.sel];status='CONFIRMED';seats.forEach(s=>m[s]=pnr);a[k]=m;DB.set('seats',a)}
+  else{const q=bks.filter(b=>b.key===k&&b.status==='RAC').reduce((s,b)=>s+b.pax.length,0);status=q+n<=RACMAX?'RAC':'WAITING'}
+  const tk=TicketFactory.create(r.type);
+  const pax=r.pax.map((p,i)=>({name:p.name.trim(),age:+p.age,g:p.g,seat:seats[i]||null,fare:stratFor(tk,+p.age,r.date).calc(r.km,r.cls)}));
+  const b={pnr,key:k,uid:u.id,uname:u.name,tid:r.tid,tname:r.tname,date:r.date,from:r.from,to:r.to,km:r.km,cls:r.cls,type:tk.type,status,pax,total:pax.reduce((s,p)=>s+p.fare,0),at:Date.now()};
+  bks.push(b);DB.set('bk',bks);Bus.emit({uid:u.id,msg:`Booking ${pnr} is ${status}.`});return b},
+ cancel(u,pnr){const bks=DB.get('bk',[]),b=bks.find(x=>x.pnr===pnr);
+  if(!b||(b.uid!==u.id&&u.role!=='ADMIN'))throw new Error('Booking not found.');
+  const old=b.status;ST[old].cancel(b);DB.set('bk',bks.map(x=>x.pnr===pnr?b:x));promoteQueue(b.key,DB.get('bk',[]));
+  Bus.emit({uid:b.uid,msg:`Booking ${pnr} cancelled (was ${old}). Seats released.`})},
+ status(pnr){return DB.get('bk',[]).find(b=>b.pnr===pnr)}};
+
+/* ===== UI ===== */
+const me=()=>DB.get('me',null);let S={},tt;
+const V=h=>{$('#app').innerHTML=h;scrollTo(0,0);nav()};
+function toast(m,err){const t=$('#toast');t.textContent=m;t.className='on'+(err?' err':'');clearTimeout(tt);tt=setTimeout(()=>t.className='',3500)}
+const ok=f=>{try{f()}catch(e){toast(e.message,1)}};
+function nav(){const u=me();$('#nav').innerHTML=`<b onclick="home()">Rail<i>X</i></b><a onclick="home()">Search</a><a onclick="pnrPage()">PNR status</a>${u?`<a onclick="hist()">My trips</a>${u.role==='ADMIN'?'<a onclick="admin()">Admin</a>':''}<a onclick="logout()">Log out (${esc(u.name.split(' ')[0])})</a>`:'<a onclick="auth()">Log in</a>'}`}
+const opts=sel=>Object.entries(STN).map(([c,n])=>`<option value="${c}" ${c===sel?'selected':''}>${n} (${c})</option>`).join('');
+const badge=s=>`<span class="bdg ${s}">${s}</span>`;
+function home(){V(`<section class="hero"><div><h1>Your seat is waiting.</h1><p>Search trains, pick your exact seat and get a PNR in under a minute.</p></div></section>
+<main class="pull"><form class="card srch" onsubmit="return go(event)"><label>From<select id="f">${opts('SBC')}</select></label><label>To<select id="t">${opts('MAS')}</select></label>
+<label>Journey date<input type="date" id="d" min="${iso(0)}" max="${iso(13)}" value="${iso(1)}"></label><button class="btn">Search trains</button></form>
+<div class="grid3"><div class="card"><h3>Live seat map</h3><p class="mut">See which berths are free and choose your own.</p></div><div class="card"><h3>RAC and waiting list</h3><p class="mut">Full train? You are queued and promoted automatically when someone cancels.</p></div><div class="card"><h3>Instant PNR</h3><p class="mut">Every booking gets a unique 10-digit PNR you can check any time.</p></div></div>
+<p class="mut" style="margin-top:24px">Demo: data is stored in this browser only. Admin login: admin@railx.com / admin123.</p></main>`)}
+function go(e){e.preventDefault();const f=$('#f').value,t=$('#t').value,d=$('#d').value;
+ if(f===t)return toast('Choose different source and destination stations.',1),false;
+ if(!d||d<iso(0))return toast('Choose a valid journey date.',1),false;S={f,t,d};results();return false}
+function results(){const L=RF.search(S.f,S.t);
+ V(`<main><h2>${STN[S.f]} to ${STN[S.t]}</h2><p class="mut">${S.d}${wkend(S.d)?' (weekend fares apply)':''}</p>${L.length?L.map(x=>`<div class="card tr"><div class="row"><div><h3>${x.name} <span class="mut">#${x.id}</span></h3><span class="tm">${x.dep} → ${x.arr}</span> <span class="mut">${x.km} km</span></div><button class="btn sec sm" onclick="route('${x.id}')">Route</button></div>
+<div class="row" style="margin-top:12px;justify-content:flex-start">${Object.entries(CL).map(([c,v])=>{const l=RF.left(x.id,S.d,c);return`<div class="cls"><b>${v.n}</b><span>₹${FS.base.calc(x.km,c)}</span><span class="${l?'mut':'RAC'}">${l?l+' seats free':'Full – RAC/WL'}</span><button class="btn sm" onclick="pick('${x.id}','${c}')">Book</button></div>`}).join('')}</div></div>`).join(''):'<div class="card">No trains run between these stations. Try Bengaluru to Chennai, Mysuru, Hyderabad, Hubballi, Pune or Mumbai.</div>'}<button class="btn sec" onclick="home()">Change search</button></main>`)}
+function route(id){const t=TR.find(x=>x.id===id);toast(t.name+': '+t.s.map(s=>`${s[0]} ${s[1]}`).join(' → '))}
+function pick(id,c){const t=RF.search(S.f,S.t).find(x=>x.id===id);S={...S,tid:id,tname:t.name,km:t.km,cls:c,n:1,sel:[],pax:[{name:'',age:'',g:''}],type:'GENERAL'};seatPage()}
+function sum(){const tk=TicketFactory.create(S.type);return S.pax.map(p=>p.age>=1?stratFor(tk,+p.age,S.d).calc(S.km,S.cls):FS.base.calc(S.km,S.cls))}
+function seatPage(){const tk=RF.taken(S.tid,S.d,S.cls),free=CAP-Object.keys(tk).length,q=free<S.n;
+ V(`<main><h2>${S.tname}</h2><p class="mut">${STN[S.f]} to ${STN[S.t]} · ${S.d} · ${CL[S.cls].n}</p><div class="card"><div class="row"><label>Passengers<select onchange="setN(+this.value)">${[1,2,3,4,5,6].map(i=>`<option ${i===S.n?'selected':''}>${i}</option>`).join('')}</select></label>
+<label>Ticket type<select onchange="S.type=this.value;upd()"><option value="GENERAL" ${S.type==='GENERAL'?'selected':''}>General</option><option value="TATKAL" ${S.type==='TATKAL'?'selected':''}>Tatkal (+30%)</option></select></label></div>
+${q?`<p class="RAC"><b>Not enough free seats.</b> You will be added to the RAC or waiting list and promoted automatically.</p>`:`<p class="mut">Select ${S.n} seat${S.n>1?'s':''} (${free} free). Struck-through seats are taken.</p><div class="seats">${[...Array(CAP)].map((_,i)=>{const n=i+1;return`<button class="${tk[n]?'t':S.sel.includes(n)?'s':''}" ${tk[n]?'disabled':''} onclick="seat(${n})" aria-label="Seat ${n}">${n}</button>`}).join('')}</div>`}</div>
+<h3 style="margin-top:20px">Passenger details</h3>${S.pax.map((p,i)=>`<div class="card srch" style="margin-bottom:10px"><label>Name<input value="${esc(p.name)}" oninput="S.pax[${i}].name=this.value" maxlength="60"></label><label>Age<input type="number" min="1" max="120" value="${esc(p.age)}" oninput="S.pax[${i}].age=this.value;upd()"></label>
+<label>Gender<select onchange="S.pax[${i}].g=this.value"><option value="">Select</option>${['M','F','O'].map(g=>`<option ${p.g===g?'selected':''}>${g}</option>`).join('')}</select></label><span class="mut">${q?'Seat: on confirmation':'Seat: '+(S.sel[i]||'not chosen')}</span></div>`).join('')}
+<div class="card row"><div><span class="mut">Total fare</span><div class="stat" id="tot"></div></div><button class="btn" onclick="confirmBook()">Pay and book</button></div></main>`);upd()}
+function upd(){const e=$('#tot');if(e)e.textContent='₹'+sum().reduce((a,b)=>a+b,0)}
+function setN(n){S.n=n;while(S.pax.length<n)S.pax.push({name:'',age:'',g:''});S.pax.length=n;S.sel=S.sel.slice(0,n);seatPage()}
+function seat(n){const i=S.sel.indexOf(n);if(i>=0)S.sel.splice(i,1);else if(S.sel.length<S.n)S.sel.push(n);else return toast(`You can select only ${S.n} seat${S.n>1?'s':''}. Change the passenger count to add more.`,1);seatPage()}
+function confirmBook(){if(!me()){S.back=1;toast('Log in to complete your booking.',1);return auth()}
+ ok(()=>{const b=RF.book(me(),{...S,sel:S.sel.slice().sort((a,b)=>a-b),from:S.f,to:S.t,date:S.d});ticket(b,true)})}
+function ticket(b,fresh){V(`<main>${fresh?'<h2>Booking '+(b.status==='CONFIRMED'?'confirmed':'received')+'</h2>':''}<div class="tix"><div class="m"><h3>${esc(b.tname)} <span class="mut">#${b.tid}</span></h3><p><b>${STN[b.from]}</b> to <b>${STN[b.to]}</b> · ${b.date} · ${CL[b.cls].n} · ${b.type}</p>
+<div class="sc"><table><tr><th>Passenger</th><th>Age</th><th>Seat</th><th>Fare</th></tr>${b.pax.map(p=>`<tr><td>${esc(p.name)}</td><td>${p.age}/${p.g}</td><td>${p.seat||'–'}</td><td>₹${p.fare}</td></tr>`).join('')}</table></div>
+<p>Total ₹${b.total} ${badge(b.status)}</p></div><div class="st"><span>PNR</span><span class="pnr">${b.pnr}</span></div></div>
+<div class="row" style="margin-top:16px;justify-content:flex-start"><button class="btn" onclick="hist()">My trips</button><button class="btn sec" onclick="home()">Book another</button></div></main>`)}
+function pnrPage(r){V(`<main><h2>PNR status</h2><form class="card srch" onsubmit="return pnrGo(event)"><label>10-digit PNR<input id="p" inputmode="numeric" maxlength="10" pattern="[0-9]{10}" required></label><button class="btn">Check status</button></form>${r===0?'<p class="RAC">No booking found for that PNR.</p>':''}</main>`)}
+function pnrGo(e){e.preventDefault();const b=RF.status($('#p').value.trim());b?ticket(b):pnrPage(0);return false}
+function auth(reg){V(`<main style="max-width:420px"><h2>${reg?'Create account':'Log in'}</h2><form class="card" style="display:grid;gap:12px" onsubmit="return doAuth(event,${!!reg})">${reg?'<label>Full name<input id="n" required maxlength="60"></label>':''}<label>Email<input id="e" type="email" required></label><label>Password<input id="w" type="password" minlength="6" required></label><button class="btn">${reg?'Register':'Log in'}</button>
+<button type="button" class="btn sec" onclick="auth(${!reg})">${reg?'I already have an account':'Create an account'}</button></form></main>`)}
+function doAuth(e,reg){e.preventDefault();ok(()=>{const us=DB.get('users',[]),em=$('#e').value.trim().toLowerCase(),pw=btoa($('#w').value);
+ if(reg){if(us.some(u=>u.email===em))throw new Error('That email is already registered. Log in instead.');const u={id:Date.now(),name:$('#n').value.trim(),email:em,pw,role:'PASSENGER'};us.push(u);DB.set('users',us);DB.set('me',u)}
+ else{const u=us.find(x=>x.email===em&&x.pw===pw);if(!u)throw new Error('Wrong email or password.');DB.set('me',u)}
+ toast('Welcome, '+me().name.split(' ')[0]+'.');S.back?(S.back=0,seatPage()):hist()});return false}
+function logout(){DB.set('me',null);home()}
+function list(bs,admin){return bs.length?`<div class="sc"><table><tr><th>PNR</th>${admin?'<th>User</th>':''}<th>Train</th><th>Date</th><th>Status</th><th>Fare</th><th></th></tr>${bs.map(b=>`<tr><td><a style="color:var(--pri);cursor:pointer" onclick='ticket(RF.status("${b.pnr}"))'>${b.pnr}</a></td>${admin?`<td>${esc(b.uname)}</td>`:''}<td>${esc(b.tname)}<br><span class="mut">${b.from} to ${b.to}</span></td><td>${b.date}</td><td>${badge(b.status)}</td><td>₹${b.total}</td><td>${b.status!=='CANCELLED'?`<button class="btn bad sm" onclick="cancel('${b.pnr}',${!!admin})">Cancel</button>`:''}</td></tr>`).join('')}</table></div>`:'<p class="mut">No bookings yet. Search a train to make your first one.</p>'}
+function cancel(p,a){ok(()=>{RF.cancel(me(),p);a?admin():hist()})}
+function hist(){const u=me();if(!u)return auth();const bs=DB.get('bk',[]).filter(b=>b.uid===u.id).sort((a,b)=>b.at-a.at),ns=DB.get('nt',[]).filter(n=>n.uid===u.id).slice(0,6);
+ V(`<main><h2>My trips</h2>${list(bs)}<h3 style="margin-top:28px">Notifications</h3>${ns.length?ns.map(n=>`<div class="card" style="margin-bottom:8px">${esc(n.msg)} <span class="mut">${new Date(n.at).toLocaleString()}</span></div>`).join(''):'<p class="mut">Nothing yet.</p>'}</main>`)}
+function admin(){const u=me();if(!u||u.role!=='ADMIN')return toast('Admin access only.',1);const bs=DB.get('bk',[]).sort((a,b)=>b.at-a.at),c=s=>bs.filter(b=>b.status===s).length;
+ V(`<main><h2>Admin dashboard</h2><div class="grid3"><div class="card"><div class="stat">${bs.length}</div>Total bookings</div><div class="card"><div class="stat">${c('CONFIRMED')}</div>Confirmed</div><div class="card"><div class="stat">${c('RAC')+c('WAITING')}</div>RAC and waiting</div><div class="card"><div class="stat">${c('CANCELLED')}</div>Cancelled</div>
+<div class="card"><div class="stat">₹${bs.filter(b=>b.status!=='CANCELLED').reduce((s,b)=>s+b.total,0)}</div>Revenue</div><div class="card"><div class="stat">${DB.get('users',[]).length}</div>Registered users</div></div><h3 style="margin-top:24px">All reservations</h3>${list(bs,1)}</main>`)}
+home();
+</script></body></html>
